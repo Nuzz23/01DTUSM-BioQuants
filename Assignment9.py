@@ -29,10 +29,10 @@ class Alignment():
             score (int): the score alignment obtained
         """
         
-        if len(seq1) != len(seq2):
-            raise ValueError('Lengths of the two sequences should match')
+        if len(seq1) != len(seq2) or not len(seq1) or not len(seq2):
+            raise ValueError('Lengths of the two sequences should match or the two sequence should not be empty')
         
-        return sum(1 if seq1[i] == seq2[i] else -1 for i in range(len(seq1)))
+        return sum(1 if seq1[i] == seq2[i] and seq1[i] not in {'X', '-'} else -1 for i in range(len(seq1)))
     
     
     
@@ -179,7 +179,7 @@ class Alignment():
         Returns:
             result (bool): the result of the comparison
         """
-        return all(item in {'A', 'C', 'G', 'T', '-', 'X'} for item in string)
+        return all(item in {'A', 'C', 'G', 'T', '-', 'X'} for item in string) and string != ''
     
     
     ## DATA READING ---------------------------------------------------------------------------
@@ -228,7 +228,7 @@ class Alignment():
         Returns:
             queries (list[str]): the list of queries 
         """
-        return list(self.__querySequence)
+        return list(self.__querySequence) if self.__querySequence else None
         
         
     ## SETTERS ------------------------------------------------------------------------------------
