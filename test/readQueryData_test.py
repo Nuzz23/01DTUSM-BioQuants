@@ -19,22 +19,16 @@ class TestReadQueryData:
         test_file = tmp_path / "query_sequences.txt"
         test_file.write_text(file_content)
 
-        # Act
-        result = alignment.readQueryData(str(test_file))
-
         # Assert
-        assert result == expected
+        assert alignment.readQueryData(str(test_file)) == expected
 
     def test_read_query_data_empty_file(self, alignment, tmp_path):
         # Arrange
         test_file = tmp_path / "empty_file.txt"
         test_file.write_text("")
-
-        # Act
-        result = alignment.readQueryData(str(test_file))
-
+        
         # Assert
-        assert result == []
+        assert alignment.readQueryData(str(test_file)) == []
 
     def test_read_query_data_nonexistent_file(self, alignment):
         # Arrange

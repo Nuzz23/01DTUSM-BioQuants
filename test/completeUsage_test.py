@@ -2,18 +2,20 @@ from Assignment9 import Alignment
 
 
 class TestCompleteUsage:
-    REFERENCE_SEQUENCE_INPUT_PATH = 'referenceSequence.txt'
-    QUERY_DATA_INPUT_PATH =  'queryData.txt'
     REF_SEQ ='GATCGTGGCTCTAGA'
     QUERIES = ['GATC', 'GGCT','CTAG']
 
-    def test_read_sequence(self):
-        # The file contains GATCGTGGCTCTAGA
-        assert Alignment().readSequence(self.REFERENCE_SEQUENCE_INPUT_PATH) == 'GATCGTGGCTCTAGA'
+    def test_read_sequence(self, tmp_path):
+        test_file = tmp_path / "reference_sequences.txt"
+        test_file.write_text(self.REF_SEQ)
+        
+        assert Alignment().readSequence(str(test_file)) == self.REF_SEQ
 
-    def test_read_query(self):
-        # The file contains
-        assert Alignment().readQueryData(self.QUERY_DATA_INPUT_PATH) == ['GATC', 'GGCT','CTAG']
+    def test_read_query(self, tmp_path):
+        test_file = tmp_path / "query_sequences.txt"
+        test_file.write_text('\n'.join(self.QUERIES))
+        
+        assert Alignment().readQueryData(str(test_file)) == self.QUERIES
 
     def test_output_alignment1(self):
         ris = Alignment().align_reads(referenceSequence=self.REF_SEQ, querySequence=self.QUERIES, outputFile=None)
