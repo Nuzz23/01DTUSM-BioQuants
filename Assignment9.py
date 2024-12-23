@@ -35,7 +35,6 @@ class Alignment():
         return sum(1 if seq1[i] == seq2[i] and seq1[i] not in {'X', '-'} else -1 for i in range(len(seq1)))
     
     
-    
     ## ALIGNMENT READS
     def align_reads(self, referenceSequence:str=None, querySequence:list[str]|set[str]=None,
                     pathReferenceSequence:str=None, pathQuerySequence:str=None,
@@ -98,8 +97,8 @@ class Alignment():
         for data in self.__querySequence:
             pos, score = self.find_best_alignment(self.__referenceSequence, data, scoringFunction=alignmentFunction)
             alignment.append([self.__referenceSequence[pos:pos+len(data)], data, pos, score])
-
-        
+            
+            
         self.prettyPrint(alignment, outputFilePath=outputFile)
         
         return alignment
@@ -107,7 +106,7 @@ class Alignment():
 
     ## BEST ALIGNMENT FUNCTION ---------------------------------------------------------------------------
 
-    def find_best_alignment(self, reference:str, query:str, scoringFunction=score_alignment)->int:
+    def find_best_alignment(self, reference:str, query:str, scoringFunction=score_alignment)->list[int, int]:
         """evaluates the best possible alignment for a query sequence into a sequence
 
         Args:
@@ -129,9 +128,7 @@ class Alignment():
         maximumScore = float('-inf')
         
         for i in range(len(reference)-len(query), -1, -1):
-            score = scoringFunction(self, reference[i:i+len(query)], query)
-            
-            if score >= maximumScore:
+            if (score:=scoringFunction(self, reference[i:i+len(query)], query)) >= maximumScore:
                 maximumScore = score
                 pos = i
 
@@ -140,12 +137,17 @@ class Alignment():
 
     ## PRETTY PRINT OF THE RESULTS ------------------------------------------------------------------------
 
-    def prettyPrint(self, results:list[list[str, str, int, int]], outputFilePath:None|bool|str=True)->None:
+    def prettyPrint(self, results:list[list[str, str, int, int]], outputFilePath:None|bool|str=True)->list[list[str, str, int, int]]:
         """performs the print of the align_reads function in a prettier way
 
         Args:
             results (list[list[str, str, int, int]]): the result of the align_reads function
-            outputFilePath (str, optional): the output file for the results, if None provided defaults to printing on screen.
+            outputFile (None|bool|str): Controls where the results are going to be outputted, if a non empty string is given it's interpreted as
+                the path to a file where to print the data. If a True boolean is given, the prints occurs on screen (stdout). 
+                If anything else is given, no print occurs. Defaults to True.
+        
+        Returns: 
+            The results of the align_read function (i.e. the parameter results)    
         """
         
         if isinstance(outputFilePath, bool) and outputFilePath:
@@ -166,6 +168,8 @@ class Alignment():
             
         if outputFilePath != sys.stdout:
             outputFilePath.close()
+        
+        return results
 
 
     # DATA VALIDATION -------------------------------------------------------------------------
@@ -179,7 +183,7 @@ class Alignment():
         Returns:
             result (bool): the result of the comparison
         """
-        return all(item in {'A', 'C', 'G', 'T', '-', 'X'} for item in string) and string != ''
+        return all(item in {'A', 'C', 'G', 'T', '-', 'X'} for item in string) and string.strip() != ''
     
     
     ## DATA READING ---------------------------------------------------------------------------
@@ -221,6 +225,7 @@ class Alignment():
             reference sequence (str): the reference sequence
         """
         return self.__referenceSequence
+    
         
     def getQuerySequence(self)->list[str]:
         """returns the list of sequence to be queried
@@ -241,8 +246,9 @@ class Alignment():
         Raises:
             ValueError: if the reference sequence is not correct
         """
-        if self.checkSequenceValidity(referenceSequence.upper()):
-            self.__referenceSequence = referenceSequence.upper()
+        referenceSequence = referenceSequence.strip().upper()
+        if self.checkSequenceValidity(referenceSequence):
+            self.__referenceSequence = referenceSequence
         else:
             raise ValueError('Invalid reference sequence')
         
@@ -256,7 +262,7 @@ class Alignment():
         Raises:
             ValueError: if one of the query contains a strange character (i.e. not in A,C,G,T,-,X)
         """
-        queries = list(map(lambda x:x.upper(), queries))
+        queries = list(map(lambda x:x.strip().upper(), queries))
         
         for data in queries:
             if not self.checkSequenceValidity(data):
