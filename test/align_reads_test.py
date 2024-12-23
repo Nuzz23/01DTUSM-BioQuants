@@ -19,10 +19,6 @@ class TestAlignReads:
         assert Alignment().align_reads(referenceSequence=reference, querySequence=query, outputFile=False) == expected_results
 
     def test_align_reads_file_input(self):
-        # Arrange
-        
-        test_obj = Alignment()
-        
         with tempfile.NamedTemporaryFile(mode='w', delete=False) as ref_file, \
              tempfile.NamedTemporaryFile(mode='w', delete=False) as query_file:
             ref_file.write("-CGTACGTACGT")
@@ -33,7 +29,7 @@ class TestAlignReads:
         
         # Act
         try:
-            results = test_obj.align_reads(
+            results = Alignment().align_reads(
                 pathReferenceSequence=ref_file.name, 
                 pathQuerySequence=query_file.name, 
                 outputFile=False

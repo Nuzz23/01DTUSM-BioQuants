@@ -60,10 +60,9 @@ class TestPrettyPrint:
     ], ids=[
         "empty_string",
         "none_value",
-        "false_value"
+        "true_value"
     ])
     
     def test_pretty_print_no_output(self, output_path):
         # Assert
-        temp = Alignment().prettyPrint([['ACG', 'ACG', 0, 3]], output_path)
         assert Alignment().prettyPrint([['ACG', 'ACG', 0, 3]], output_path) is None

@@ -29,11 +29,5 @@ class TestCheckSequenceValidity:
         "lowercase_sequence"
     ])
     def test_check_sequence_validity(self, input_string, expected):
-        # Arrange
-        test_obj = Alignment()
-        
-        # Act
-        result = test_obj.checkSequenceValidity(input_string)
-        
         # Assert
-        assert result == expected
+        assert Alignment().checkSequenceValidity(input_string) == expected
