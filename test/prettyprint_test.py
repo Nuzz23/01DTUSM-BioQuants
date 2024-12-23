@@ -56,11 +56,11 @@ class TestPrettyPrint:
     @pytest.mark.parametrize("output_path", [
         '',
         None,
-        True
+        False
     ], ids=[
         "empty_string",
         "none_value",
-        "true_value"
+        "false_value"
     ])
     
     def test_pretty_print_no_output(self, output_path):
