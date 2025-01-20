@@ -1,4 +1,5 @@
 import sys
+from typing import List
 
 
 class Alignment():    
@@ -36,10 +37,10 @@ class Alignment():
     
     
     ## ALIGNMENT READS
-    def align_reads(self, referenceSequence:str=None, querySequence:list[str]|set[str]=None,
+    def align_reads(self, referenceSequence:str=None, querySequence:List[str]=None,
                     pathReferenceSequence:str=None, pathQuerySequence:str=None,
-                    alignmentFunction=score_alignment, outputFile:None|bool|str = True
-                    ) -> list[list[str, str, int, int]]:
+                    alignmentFunction=score_alignment, outputFile:str = True
+                    ) -> List[List[str]]:
         """Align query sequences against a reference sequence using a specified alignment function.
 
         Performs sequence alignment by finding the best matching positions of query sequences within a reference sequence. 
@@ -56,7 +57,8 @@ class Alignment():
                 If anything else is given, no print occurs. 
 
         Returns:
-            results (list[list[str, str, int, int]]): A list of alignment results, each containing [matched reference segment, query sequence, position in the reference sequence, score].
+            results (list[list[str, str, int, int]]): A list of alignment results, 
+            each containing [matched reference segment, query sequence, position in the reference sequence, score].
 
         Raises:
             ValueError: If no valid reference or query sequences are provided or sequences are invalid.
@@ -74,6 +76,7 @@ class Alignment():
         if referenceSequence or pathReferenceSequence:
             
             referenceSequence = referenceSequence or self.readSequence(pathReferenceSequence)
+            referenceSequence = referenceSequence.strip().upper()
             
             if not self.checkSequenceValidity(referenceSequence):
                 raise ValueError('Incorrect reference sequence passed ')
@@ -82,6 +85,8 @@ class Alignment():
         
         if querySequence or pathQuerySequence:        
             querySequence = list(querySequence) if querySequence else self.readQueryData(path=pathQuerySequence)
+            
+            querySequence = list(map(lambda x:x.strip().upper(), querySequence))
             
             for seq in querySequence:
                 if not self.checkSequenceValidity(seq):
@@ -106,13 +111,15 @@ class Alignment():
 
     ## BEST ALIGNMENT FUNCTION ---------------------------------------------------------------------------
 
-    def find_best_alignment(self, reference:str, query:str, scoringFunction=score_alignment)->list[int, int]:
+    def find_best_alignment(self, reference:str, query:str, scoringFunction=score_alignment)->List[int]:
         """evaluates the best possible alignment for a query sequence into a sequence
 
         Args:
             reference (str): the reference sequence 
             query (str): the sub sequence to be aligned to the reference sequence
-            scoringFunction (function, optional): the function to be used to determine the score, the function must accept two string as input (in the order reference, subsequence) and must return an integer or float.  Defaults to score_alignment.
+            scoringFunction (function, optional): the function to be used to determine the score, 
+            the function must accept two string as input (in the order reference, subsequence) and must return an 
+            integer or float.  Defaults to score_alignment.
 
         Raises:
             ValueError: if the reference sequence has a lower or equal length to the query sequence
@@ -125,10 +132,14 @@ class Alignment():
         if len(reference) <= len(query):
             raise ValueError('reference sequence length should be higher than the query sequence length')
         
-        maximumScore = float('-inf')
+        try:
+            maximumScore = float('-inf')
+        except TypeError:
+            maximumScore = -999999999
         
         for i in range(len(reference)-len(query), -1, -1):
-            if (score:=scoringFunction(self, reference[i:i+len(query)], query)) >= maximumScore:
+            score = scoringFunction(self, reference[i:i+len(query)], query)
+            if score >= maximumScore:
                 maximumScore = score
                 pos = i
 
@@ -137,7 +148,7 @@ class Alignment():
 
     ## PRETTY PRINT OF THE RESULTS ------------------------------------------------------------------------
 
-    def prettyPrint(self, results:list[list[str, str, int, int]], outputFilePath:None|bool|str=True)->list[list[str, str, int, int]]:
+    def prettyPrint(self, results:List[List[str]], outputFilePath:str=True)->List[List[str]]:
         """performs the print of the align_reads function in a prettier way
 
         Args:
@@ -155,7 +166,7 @@ class Alignment():
         elif isinstance(outputFilePath, str) and outputFilePath.strip() != '':
             outputFilePath = open(outputFilePath, 'w', encoding='UTF-8')
         else:
-            return
+            return results
 
         
         print(f"Reference sequence : {self.__referenceSequence}", file=outputFilePath, end='\n'*2)
@@ -203,7 +214,7 @@ class Alignment():
             return ''.join(line.strip().upper() for line in  fp)
         
         
-    def readQueryData(self, path:str)->list[str]:
+    def readQueryData(self, path:str)->List[str]:
         """reads the query data to be aligned
 
         Args:
@@ -227,7 +238,7 @@ class Alignment():
         return self.__referenceSequence
     
         
-    def getQuerySequence(self)->list[str]:
+    def getQuerySequence(self)->List[str]:
         """returns the list of sequence to be queried
 
         Returns:
@@ -253,7 +264,7 @@ class Alignment():
             raise ValueError('Invalid reference sequence')
         
         
-    def setQuerySequence(self, queries:list[str] | set[str])->None:
+    def setQuerySequence(self, queries:List[str])->None:
         """sets the new list of queries
 
         Args:

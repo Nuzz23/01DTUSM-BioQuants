@@ -23,23 +23,18 @@ class TestPrettyPrint:
     ])
     
     def test_pretty_print_stdout(self, results, output_path, expected_output, capsys):
-        # Arrange
         test_obj = Alignment()
         test_obj.__referenceSequence = None
         
-        # Act
         test_obj.prettyPrint(results, output_path)
     
-        # Assert
         assert capsys.readouterr().out == expected_output
 
     def test_pretty_print_file(self):
-        # Arrange
         test_obj = Alignment()
         test_obj.__referenceSequence = None
         results = [['ACGT', 'ACG', 0, 3]]
         
-        # Act
         with tempfile.NamedTemporaryFile(mode='w+', delete=False) as temp_file:
             test_obj.prettyPrint(results, temp_file.name)
             temp_file.close()
@@ -49,7 +44,6 @@ class TestPrettyPrint:
             
             os.unlink(temp_file.name)
         
-        # Assert
         expected_output = "Reference sequence : None\n\nPortion of the reference sequence : ACGT\nSequence queried : ACG\nPosition for the best alignment in the reference sequence : 0\nbest scoring obtained : 3\n\n\n"
         assert content == expected_output
 
@@ -63,6 +57,6 @@ class TestPrettyPrint:
         "false_value"
     ])
     
-    def test_pretty_print_no_output(self, output_path):
+    def test_pretty_print_output(self, output_path):
         # Assert
-        assert Alignment().prettyPrint([['ACG', 'ACG', 0, 3]], output_path) is None
+        assert Alignment().prettyPrint([['ACG', 'ACG', 0, 3]], output_path) is not None
